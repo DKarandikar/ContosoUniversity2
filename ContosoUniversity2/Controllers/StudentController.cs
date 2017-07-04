@@ -17,11 +17,13 @@ namespace ContosoUniversity2.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Student
-        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page, int pageSize = 5)
         {
             ViewBag.CurrentSort = sortOrder;
-            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewBag.PageSize = pageSize;
+            ViewBag.LastNameSortParm = sortOrder == "LastName" ? "LastName_desc" : "LastName";
+            ViewBag.FirstNameSortParm = sortOrder == "FirstName" ? "FirstName_desc": "FirstName";
+            ViewBag.DateSortParm = sortOrder == "Date" ? "Date_desc" : "Date";
 
             if (searchString != null)
             {
@@ -44,21 +46,30 @@ namespace ContosoUniversity2.Controllers
 
             switch (sortOrder)
             {
-                case "name_desc":
+                case "LastName":
+                    students = students.OrderBy(s => s.LastName);
+                    break;
+                case "LastName_desc":
                     students = students.OrderByDescending(s => s.LastName);
                     break;
                 case "Date":
                     students = students.OrderBy(s => s.EnrollmentDate);
                     break;
-                case "date_desc":
+                case "Date_desc":
                     students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                case "FirstName":
+                    students = students.OrderBy(s => s.FirstMidName);
+                    break;
+                case "FirstName_desc":
+                    students = students.OrderByDescending(s => s.FirstMidName);
                     break;
                 default:
                     students = students.OrderBy(s => s.LastName);
                     break;
             }
 
-            int pageSize = 5;
+            //int pageSize = 5;
             int pageNumber = (page ?? 1);
             return View(students.ToPagedList(pageNumber, pageSize));
         }

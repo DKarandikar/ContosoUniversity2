@@ -16,7 +16,9 @@
 @using (Html.BeginForm("Index", "Student", FormMethod.Get))
 {
     <p>
+        @Html.Hidden("SortOrder",ViewBag.SortOrder as string)
         Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        @Html.Hidden("PageSize", ViewBag.PageSize as string)
         <input type="submit" value="Search" />
     </p>
 }
@@ -24,15 +26,23 @@
 <table class="table">
     <tr>
         <th>
-            @Html.ActionLink("Last Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+            @Html.ActionLink("Last Name", "Index", new{ sortOrder = ViewBag.LastNameSortParm,
+                                                           currentFilter = ViewBag.CurrentFilter,
+                                                           pageSize = ViewBag.PageSize }) 
         </th>
         <th>
-            First Name
+            @Html.ActionLink("First Name", "Index", new{ sortOrder = ViewBag.FirstNameSortParm,
+                                                            currentFilter = ViewBag.CurrentFilter,
+                                                            pageSize = ViewBag.PageSize})      
         </th>
         <th>
-            @Html.ActionLink("Enrollment Date", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+            @Html.ActionLink("Enrollment Date", "Index", new { sortOrder = ViewBag.DateSortParm,
+                                                                currentFilter = ViewBag.CurrentFilter,
+                                                                pageSize = ViewBag.PageSize})
         </th>
-        <th></th>
+        <th>
+
+        </th>
     </tr>
 
 @foreach (var item in Model) {
@@ -58,7 +68,17 @@
 
 <br />
 
+@using (Html.BeginForm("Index", "Student", FormMethod.Get))
+{
+    <p>
+        @Html.Hidden("SortOrder", ViewBag.SortOrder as string)
+        @Html.Hidden("SearchString", ViewBag.CurrentFilter as string)
+        Set page size: @Html.TextBox("PageSize", ViewBag.PageSize as string)
+        <input type="submit" value="Set" />
+    </p>
+}
+
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 
 @Html.PagedListPager(Model, page => Url.Action("Index",
-    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, pageSize = ViewBag.PageSize }))
