@@ -180,9 +180,24 @@
     <Compile Include="Migrations\201707041228262_InitialCreate.Designer.cs">
       <DependentUpon>201707041228262_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201707041255179_MaxLengthOnNames.cs" />
+    <Compile Include="Migrations\201707041255179_MaxLengthOnNames.Designer.cs">
+      <DependentUpon>201707041255179_MaxLengthOnNames.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201707041259225_ColumnFirstName.cs" />
+    <Compile Include="Migrations\201707041259225_ColumnFirstName.Designer.cs">
+      <DependentUpon>201707041259225_ColumnFirstName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201707041330554_ComplexDataModel.cs" />
+    <Compile Include="Migrations\201707041330554_ComplexDataModel.Designer.cs">
+      <DependentUpon>201707041330554_ComplexDataModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Enrollment.cs" />
+    <Compile Include="Models\Instructor.cs" />
+    <Compile Include="Models\OfficeAssignment.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\EnrollmentDateGroup.cs" />
@@ -248,6 +263,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201707041228262_InitialCreate.resx">
       <DependentUpon>201707041228262_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707041255179_MaxLengthOnNames.resx">
+      <DependentUpon>201707041255179_MaxLengthOnNames.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707041259225_ColumnFirstName.resx">
+      <DependentUpon>201707041259225_ColumnFirstName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707041330554_ComplexDataModel.resx">
+      <DependentUpon>201707041330554_ComplexDataModel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
