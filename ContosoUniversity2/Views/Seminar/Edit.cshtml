@@ -32,6 +32,27 @@
                 @Html.ValidationMessageFor(model => model.SeminarLength, "", new { @class = "text-danger" })
             </div>
         </div>
+        <div>
+            <dl class="dl-horizontal">
+                <dt>
+                    Course
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Course.Title)
+                </dd>
+                <dt>
+                    Students
+                </dt>
+                <dd>
+                    @{
+                        foreach (var student in Model.Students)
+                        {
+                            @student.FullName <br />
+                        }
+                    }
+                </dd>
+            </dl>
+        </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

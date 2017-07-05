@@ -47,8 +47,7 @@ namespace ContosoUniversity2.Controllers
 
 
         // POST: Seminar/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID")] Seminar seminar)
@@ -57,6 +56,7 @@ namespace ContosoUniversity2.Controllers
             {
                 // Create a new list to hold the students
                 seminar.Students = new List<Student>();
+
                 // Find all students that are taking the course
                 var studentsForSeminar = new List<Student>();
                 foreach (Student student in db.Students.ToList())
@@ -98,21 +98,6 @@ namespace ContosoUniversity2.Controllers
             return View(seminar);
         }
 
-        //// POST: Seminar/Edit/5
-        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit([Bind(Include = "SeminarTime, SeminarLength")] Seminar seminar)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.Entry(seminar).State = EntityState.Modified;
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    return View(seminar);
-        //}
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]

@@ -11,19 +11,35 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.SeminarTime)
+            Seminar Time
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.SeminarTime)
         </dd>
-
         <dt>
-            @Html.DisplayNameFor(model => model.SeminarLength)
+            Seminar Length
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.SeminarLength)
+        </dd>
+        <dt>
+            Course
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Course.Title)
+        </dd>
+        <dt>
+            Students
+        </dt>
+        <dd>
+            @{
+                foreach (var student in Model.Students)
+                {
+                    @student.FullName <br />
+                }
+            }
         </dd>
 
     </dl>
