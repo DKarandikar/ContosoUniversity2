@@ -54,30 +54,61 @@ namespace ContosoUniversity2.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Create a new list to hold the students
-                seminar.Students = new List<Student>();
+                // Check first whether the potential time and date overlaps with any other seminars
+                Boolean overlap = false;
 
-                // Find all students that are taking the course
-                var studentsForSeminar = new List<Student>();
-                foreach (Student student in db.Students.ToList())
+                // Set dateTime and end dateTime for the seminar in question
+                DateTime semStart = seminar.SeminarTime;
+                DateTime semEnd = seminar.SeminarTime.AddHours(seminar.SeminarLength);
+
+                foreach (Seminar s in db.Seminars.Where(s => s.CourseID == seminar.CourseID))
                 {
-                    foreach (Enrollment enrollment in student.Enrollments)
+                    // Set dateTime and end dateTime for each seminar in the DB 
+                    DateTime sStart = s.SeminarTime;
+                    DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                    // Check the four possible ways an overlap might manifest
+                    if (sStart <= semStart && semStart <= sEnd) { overlap = true; }
+                    else if (sStart <= semEnd && semEnd <= sEnd) { overlap = true; }
+                    else if (semStart <= sStart && sStart <= semEnd) { overlap = true; }
+                    else if (semStart <= sEnd && sEnd <= semEnd) { overlap = true; }
+                }
+
+                // If there is an overlap, don't accept and display the error message
+                if (overlap)
+                {
+                    ModelState.AddModelError("CourseOverlap", "There is an overlap for seminars on this course");
+                    PopulateDepartmentsDropDownList();
+                } 
+                // Otherwise, add the new seminar
+                else
+                {
+                    // Create a new list to hold the students that will be added
+                    seminar.Students = new List<Student>();
+
+                    // Find all students that are taking the course, because they will all have to go to the seminar
+                    var studentsForSeminar = new List<Student>();
+                    foreach (Student student in db.Students.ToList())
                     {
-                        if (enrollment.CourseID == seminar.CourseID)
+                        foreach (Enrollment enrollment in student.Enrollments)
                         {
-                            studentsForSeminar.Add(student);
+                            if (enrollment.CourseID == seminar.CourseID)
+                            {
+                                studentsForSeminar.Add(student);
+                            }
                         }
                     }
-                }
-                // Add all students on the course to all seminars for that course
-                foreach (Student student in studentsForSeminar)
-                {
-                    seminar.Students.Add(student);
-                }
+                    // Add all students on the course to all seminars for that course
+                    foreach (Student student in studentsForSeminar)
+                    {
+                        seminar.Students.Add(student);
+                    }
 
-                db.Seminars.Add(seminar);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                    db.Seminars.Add(seminar);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                
             }
 
             return View(seminar);

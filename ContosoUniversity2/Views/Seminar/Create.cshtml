@@ -22,6 +22,7 @@
                 @Html.ValidationMessageFor(model => model.SeminarTime, "", new { @class = "text-danger" })
             </div>
         </div>
+        @Html.ValidationMessage("CourseOverlap")
 
         <div class="form-group">
             @Html.LabelFor(model => model.SeminarLength, htmlAttributes: new { @class = "control-label col-md-2" })
