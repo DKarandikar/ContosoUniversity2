@@ -244,28 +244,35 @@ namespace ContosoUniversity2.Migrations
 
             foreach (Seminar s in seminars)
             {
-                // Add the course for the corresponding ID to each seminar
-                s.Course = context.Courses.Single(c => c.CourseID == s.CourseID);
 
-                // Determine which students are enrolled for the corresponding course and add to a new list 
-                var studentsForSeminar = new List<Student>();
-                foreach (Student student in context.Students)
+                var seminarInDataBase = context.Seminars.Where(
+                    sem => sem.CourseID == s.CourseID && sem.SeminarTime == s.SeminarTime).SingleOrDefault();
+
+                if (seminarInDataBase == null)
                 {
-                    foreach (Enrollment enrollment in student.Enrollments)
+
+                    // Add the course for the corresponding ID to each seminar
+                    s.Course = context.Courses.Single(c => c.CourseID == s.CourseID);
+
+                    // Determine which students are enrolled for the corresponding course and add to a new list 
+                    var studentsForSeminar = new List<Student>();
+                    foreach (Student student in context.Students)
                     {
-                        if (enrollment.CourseID == s.CourseID)
+                        foreach (Enrollment enrollment in student.Enrollments)
                         {
-                            studentsForSeminar.Add(student);
+                            if (enrollment.CourseID == s.CourseID)
+                            {
+                                studentsForSeminar.Add(student);
+                            }
                         }
                     }
+                    // Add all students on the course to all seminars for that course
+                    foreach (Student student in studentsForSeminar)
+                    {
+                        s.Students.Add(student);
+                    }
+                    context.Seminars.AddOrUpdate(s);
                 }
-                // Add all students on the course to all seminars for that course
-                foreach (Student student in studentsForSeminar)
-                {
-                    s.Students.Add(student);
-                }
-                context.Seminars.AddOrUpdate(s);
-                
             }
             context.SaveChanges();
 

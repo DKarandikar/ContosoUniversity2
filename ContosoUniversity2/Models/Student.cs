@@ -15,7 +15,7 @@ namespace ContosoUniversity2.Models
         [Required]
         [StringLength(50, ErrorMessage = "First name cannot be longer than 50 characters.")]
         [Column("FirstName")]
-        [Display(Name = "Enrollment Date")]
+        [Display(Name = "First Name")]
         public string FirstMidName { get; set; }
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
