@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using ContosoUniversity2.DAL;
 using ContosoUniversity2.Models;
+using System.Data.Entity.Infrastructure;
 
 namespace ContosoUniversity2.Controllers
 {
@@ -43,19 +44,14 @@ namespace ContosoUniversity2.Controllers
             return View();
         }
 
-        private void PopulateDepartmentsDropDownList(object selectedCourse = null)
-        {
-            var coursesQuery = from d in db.Courses orderby d.Title select d;
 
-            ViewBag.CourseID = new SelectList(coursesQuery, "CourseID", "Title", selectedCourse);
-        }
 
         // POST: Seminar/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "SeminarTime,SeminarLength,CourseID")] Seminar seminar)
+        public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID")] Seminar seminar)
         {
             if (ModelState.IsValid)
             {
@@ -102,20 +98,54 @@ namespace ContosoUniversity2.Controllers
             return View(seminar);
         }
 
-        // POST: Seminar/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        //// POST: Seminar/Edit/5
+        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        //// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Edit([Bind(Include = "SeminarTime, SeminarLength")] Seminar seminar)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.Entry(seminar).State = EntityState.Modified;
+        //        db.SaveChanges();
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View(seminar);
+        //}
+
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "SeminarID,SeminarTime,SeminarLength")] Seminar seminar)
+        public ActionResult EditPost(int? id)
         {
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                db.Entry(seminar).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            return View(seminar);
+            var seminarToUpdate = db.Seminars.Find(id);
+            if (TryUpdateModel(seminarToUpdate, "",
+               new string[] { "SeminarTime", "SeminarLength" }))
+            {
+                try
+                {
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                catch (RetryLimitExceededException /* dex */)
+                {
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                }
+            }
+            return View(seminarToUpdate);
+        }
+
+        private void PopulateDepartmentsDropDownList(object selectedCourse = null)
+        {
+            var coursesQuery = from d in db.Courses orderby d.Title select d;
+
+            ViewBag.CourseID = new SelectList(coursesQuery, "CourseID", "Title", selectedCourse);
         }
 
         // GET: Seminar/Delete/5

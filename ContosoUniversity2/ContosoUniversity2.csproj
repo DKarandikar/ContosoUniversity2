@@ -228,6 +228,10 @@
     <Compile Include="Migrations\201707051429358_NoDuplicateSeminars.Designer.cs">
       <DependentUpon>201707051429358_NoDuplicateSeminars.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201707051453298_SeminarDateFormat.cs" />
+    <Compile Include="Migrations\201707051453298_SeminarDateFormat.Designer.cs">
+      <DependentUpon>201707051453298_SeminarDateFormat.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\Department.cs" />
@@ -355,6 +359,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201707051429358_NoDuplicateSeminars.resx">
       <DependentUpon>201707051429358_NoDuplicateSeminars.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707051453298_SeminarDateFormat.resx">
+      <DependentUpon>201707051453298_SeminarDateFormat.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
