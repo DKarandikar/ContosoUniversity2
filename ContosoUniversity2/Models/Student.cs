@@ -32,5 +32,6 @@ namespace ContosoUniversity2.Models
         }
 
         public virtual ICollection<Enrollment> Enrollments { get; set; }
+        public virtual ICollection<Seminar> Seminars { get; set; }
     }
 }

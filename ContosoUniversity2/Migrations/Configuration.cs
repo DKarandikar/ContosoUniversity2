@@ -20,7 +20,7 @@ namespace ContosoUniversity2.Migrations
             var students = new List<Student>
             {
                 new Student { FirstMidName = "Carson",   LastName = "Alexander",
-                    EnrollmentDate = DateTime.Parse("2010-09-01") },
+                    EnrollmentDate = DateTime.Parse("2011-09-01") },
                 new Student { FirstMidName = "Meredith", LastName = "Alonso",
                     EnrollmentDate = DateTime.Parse("2012-09-01") },
                 new Student { FirstMidName = "Arturo",   LastName = "Anand",
@@ -30,11 +30,11 @@ namespace ContosoUniversity2.Migrations
                 new Student { FirstMidName = "Yan",      LastName = "Li",
                     EnrollmentDate = DateTime.Parse("2012-09-01") },
                 new Student { FirstMidName = "Peggy",    LastName = "Justice",
-                    EnrollmentDate = DateTime.Parse("2011-09-01") },
+                    EnrollmentDate = DateTime.Parse("2012-09-01") },
                 new Student { FirstMidName = "Laura",    LastName = "Norman",
                     EnrollmentDate = DateTime.Parse("2013-09-01") },
                 new Student { FirstMidName = "Nino",     LastName = "Olivetto",
-                    EnrollmentDate = DateTime.Parse("2005-09-01") }
+                    EnrollmentDate = DateTime.Parse("2012-09-01") }
             };
 
             students.ForEach(s => context.Students.AddOrUpdate(p => p.LastName, s));
@@ -193,6 +193,7 @@ namespace ContosoUniversity2.Migrations
                  }
             };
 
+
             foreach (Enrollment e in enrollments)
             {
                 var enrollmentInDataBase = context.Enrollments.Where(
@@ -204,6 +205,73 @@ namespace ContosoUniversity2.Migrations
                     context.Enrollments.Add(e);
                 }
             }
+            context.SaveChanges();
+
+            var seminars = new List<Seminar>
+            {
+                new Seminar
+                {
+                    SeminarTime = DateTime.Parse("2015-10-01 9:00"),
+                    SeminarLength = 2, CourseID = courses.Single(c => c.Title == "Chemistry").CourseID,
+                    Students = new List<Student>()
+                },
+                new Seminar
+                {
+                    SeminarTime = DateTime.Parse("2015-10-15 10:00"),
+                    SeminarLength = 2, CourseID = courses.Single(c => c.Title == "Chemistry").CourseID,
+                    Students = new List<Student>()
+                },
+                new Seminar
+                {
+                    SeminarTime = DateTime.Parse("2015-10-03 12:00"),
+                    SeminarLength = 1, CourseID = courses.Single(c => c.Title == "Literature").CourseID,
+                    Students = new List<Student>()
+                },
+                new Seminar
+                {
+                    SeminarTime = DateTime.Parse("2015-10-17 12:00"),
+                    SeminarLength = 1, CourseID = courses.Single(c => c.Title == "Literature").CourseID,
+                    Students = new List<Student>()
+                },
+                new Seminar
+                {
+                    SeminarTime = DateTime.Parse("2015-10-31 12:00"),
+                    SeminarLength = 1, CourseID = courses.Single(c => c.Title == "Literature").CourseID,
+                    Students = new List<Student>()
+                }
+
+            };
+
+            foreach (Seminar s in seminars)
+            {
+                // Add the course for the corresponding ID to each seminar
+                s.Course = context.Courses.Single(c => c.CourseID == s.CourseID);
+
+                // Determine which students are enrolled for the corresponding course and add to a new list 
+                var studentsForSeminar = new List<Student>();
+                foreach (Student student in context.Students)
+                {
+                    foreach (Enrollment enrollment in student.Enrollments)
+                    {
+                        if (enrollment.CourseID == s.CourseID)
+                        {
+                            studentsForSeminar.Add(student);
+                        }
+                    }
+                }
+                // Add all students on the course to all seminars for that course
+                foreach (Student student in studentsForSeminar)
+                {
+                    s.Students.Add(student);
+                }
+                context.Seminars.AddOrUpdate(s);
+                
+            }
+            context.SaveChanges();
+
+            //context.Seminars.Single(i => i.SeminarID == 1).Students.Add(context.Students.Single(s => s.LastName == "Li"));
+
+
             context.SaveChanges();
         }
 
