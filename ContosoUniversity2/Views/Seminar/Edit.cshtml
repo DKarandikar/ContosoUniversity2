@@ -25,6 +25,9 @@
             </div>
         </div>
 
+        @Html.ValidationMessage("CourseOverlap")
+        @Html.ValidationMessage("StudentOverlap")
+
         <div class="form-group">
             @Html.LabelFor(model => model.SeminarLength, "Seminar Length", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">

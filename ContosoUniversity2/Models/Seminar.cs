@@ -11,7 +11,7 @@ namespace ContosoUniversity2.Models
 
 
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd H:mm}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy H:mm}", ApplyFormatInEditMode = true)]
         [Display(Name = "Seminar Time")]
         public DateTime SeminarTime { get; set; }
 

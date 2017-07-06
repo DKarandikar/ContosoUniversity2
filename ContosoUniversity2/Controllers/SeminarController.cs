@@ -19,7 +19,7 @@ namespace ContosoUniversity2.Controllers
         // GET: Seminar
         public ActionResult Index()
         {
-            return View(db.Seminars.ToList());
+            return View(db.Seminars.OrderBy(s => s.SeminarTime).ToList());
         }
 
         // GET: Seminar/Details/5
@@ -67,19 +67,48 @@ namespace ContosoUniversity2.Controllers
                     DateTime sStart = s.SeminarTime;
                     DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
 
-                    // Check the four possible ways an overlap might manifest
-                    if (sStart <= semStart && semStart <= sEnd) { overlap = true; }
-                    else if (sStart <= semEnd && semEnd <= sEnd) { overlap = true; }
-                    else if (semStart <= sStart && sStart <= semEnd) { overlap = true; }
-                    else if (semStart <= sEnd && sEnd <= semEnd) { overlap = true; }
+                    // Check for overlap
+                    if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlap = true; }
+                }
+
+                // Check for overlap with other seminars of students on this course
+                Boolean overlapStudent = false;
+
+                // Every student; if they are on this course; then for all enrollments that aren't this course; check for overlap
+
+                foreach (Student student in db.Students.ToList())
+                {
+                    if (student.Enrollments.Any(enrol => enrol.CourseID == seminar.CourseID))
+                    {
+                        foreach (Enrollment enrollment in student.Enrollments)
+                        {
+                            if (enrollment.CourseID != seminar.CourseID)
+                            {
+                                foreach (Seminar s in student.Seminars.Where(sem => sem.CourseID != seminar.CourseID))
+                                {
+                                    DateTime sStart = s.SeminarTime;
+                                    DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                                    // Check for overlap
+                                    if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlapStudent = true; }
+                                }
+                            }
+                        }
+                    }
+                    
                 }
 
                 // If there is an overlap, don't accept and display the error message
                 if (overlap)
                 {
-                    ModelState.AddModelError("CourseOverlap", "There is an overlap for seminars on this course");
+                    ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
                     PopulateDepartmentsDropDownList();
                 } 
+                else if (overlapStudent)
+                {
+                    ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
+                    PopulateDepartmentsDropDownList();
+                }
                 // Otherwise, add the new seminar
                 else
                 {
@@ -144,9 +173,71 @@ namespace ContosoUniversity2.Controllers
             {
                 try
                 {
-                    db.SaveChanges();
+                    // Check first whether the potential time and date overlaps with any other seminars
+                    Boolean overlap = false;
 
-                    return RedirectToAction("Index");
+                    // Set dateTime and end dateTime for the seminar in question
+                    DateTime semStart = seminarToUpdate.SeminarTime;
+                    DateTime semEnd = seminarToUpdate.SeminarTime.AddHours(seminarToUpdate.SeminarLength);
+
+                    // Check all seminars on this course; except the one itself, because this can overlap
+                    foreach (Seminar s in db.Seminars.Where(s => (s.CourseID == seminarToUpdate.CourseID) && 
+                                                                 (s.SeminarID != seminarToUpdate.SeminarID)))
+                    {
+                        // Set dateTime and end dateTime for each seminar in the DB 
+                        DateTime sStart = s.SeminarTime;
+                        DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                        // Check for overlap
+                        if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlap = true; }
+                    }
+
+                    // Check for overlap with other seminars of students on this course
+                    Boolean overlapStudent = false;
+
+                    // Every student; if they are on this course; then for all enrollments that aren't this course; check for overlap
+
+                    foreach (Student student in db.Students.ToList())
+                    {
+                        if (student.Enrollments.Any(enrol => enrol.CourseID == seminarToUpdate.CourseID))
+                        {
+                            foreach (Enrollment enrollment in student.Enrollments)
+                            {
+                                // No need to check for seminars on this course; this would be caught by the above error
+                                if (enrollment.CourseID != seminarToUpdate.CourseID)
+                                {
+                                    foreach (Seminar s in student.Seminars.Where(sem => sem.CourseID != seminarToUpdate.CourseID))
+                                    {
+                                        DateTime sStart = s.SeminarTime;
+                                        DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                                        // Check for overlap
+                                        if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlapStudent = true; }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+                    // If there is an overlap, don't accept and display the error message
+                    if (overlap)
+                    {
+                        ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
+                        PopulateDepartmentsDropDownList();
+                    }
+                    else if (overlapStudent)
+                    {
+                        ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
+                        PopulateDepartmentsDropDownList();
+                    }
+                    // Otherwise, add the new seminar
+                    else
+                    {
+                        db.SaveChanges();
+                        return RedirectToAction("Index");
+                    }
+
                 }
                 catch (RetryLimitExceededException /* dex */)
                 {
@@ -189,6 +280,16 @@ namespace ContosoUniversity2.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        private bool DateOverlap(DateTime d1_start, DateTime d1_end, DateTime d2_start, DateTime d2_end)
+        {
+            if (d1_start <= d2_start && d2_start <= d1_end) { return true; }
+            else if (d1_start <= d2_end && d2_end <= d1_end) { return true; }
+            else if (d2_start <= d1_start && d1_start <= d2_end) { return true; }
+            else if (d2_end <= d1_end && d1_end <= d2_start) { return true; }
+            return false;
+        }
+
 
         protected override void Dispose(bool disposing)
         {
