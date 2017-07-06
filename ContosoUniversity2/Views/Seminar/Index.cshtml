@@ -40,9 +40,23 @@
         <td>
             @Html.DisplayFor(modelItem => item.SeminarTime)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.SeminarLength) Hours
-        </td>
+
+        @* Check here if the seminar lasts for an hour or not to get plural correct *@
+        @if (item.SeminarLength == 1)
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.SeminarLength) Hour
+            </td>
+        }
+        else
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.SeminarLength) Hours
+            </td>
+        }
+        @*<td>
+            @Html.DisplayFor(modelItem => item.SeminarLength) @if (item.SeminarLength == 1) { Hour } else { Hours }
+        </td>*@
         <td>
             @{
                 foreach (var student in item.Students)
@@ -54,6 +68,7 @@
         <td>
             @Html.DisplayFor(modelItem => item.Instructor.FullName)
         </td>
+        
         <td>
             @Html.DisplayFor(modelItem => item.Location)
         </td>
@@ -64,6 +79,8 @@
             @Html.ActionLink("Delete", "Delete", new { id=item.SeminarID })
         </td>
     </tr>
+
 }
 
 </table>
+

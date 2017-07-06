@@ -40,6 +40,7 @@
                 @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
             </div>
         </div>
+        @Html.ValidationMessage("LocationOverlap")
 
         <div class="form-group">
             <label class="control-label col-md-2" for="CourseID">Course</label>

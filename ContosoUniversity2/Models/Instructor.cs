@@ -21,6 +21,7 @@ namespace ContosoUniversity2.Models
         public DateTime HireDate { get; set; }
 
         [Display(Name = "Full Name")]
+        [DisplayFormat(NullDisplayText = "No Instructor Yet")] //Can only be null if the instructor themselves is null in another table
         public string FullName
         {
             get { return LastName + ", " + FirstMidName; }

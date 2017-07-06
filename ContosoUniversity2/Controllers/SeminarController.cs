@@ -14,6 +14,11 @@ namespace ContosoUniversity2.Controllers
 {
     public class SeminarController : Controller
     {
+        const string COURSE_ERROR = "There will be an overlap for seminars on this course. Try another time.";
+        const string STUDENT_ERROR = "There will be an overlap for some student on this course with another seminar they have. Try another time.";
+        const string LOCATION_ERROR = "There is already a seminar scheduled at this location during this time. Try another time or location.";
+        const string INSTRUCTOR_ERROR = "This instructor is already leading another seminar at this time. Try another time or instructor.";
+
         private SchoolContext db = new SchoolContext();
 
         // GET: Seminar
@@ -50,7 +55,7 @@ namespace ContosoUniversity2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID, Location")] Seminar seminar)
+        public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID, Location")] Seminar seminarToUpdate)
         {
             if (ModelState.IsValid)
             {
@@ -58,10 +63,10 @@ namespace ContosoUniversity2.Controllers
                 Boolean overlap = false;
 
                 // Set dateTime and end dateTime for the seminar in question
-                DateTime semStart = seminar.SeminarTime;
-                DateTime semEnd = seminar.SeminarTime.AddHours(seminar.SeminarLength);
+                DateTime semStart = seminarToUpdate.SeminarTime;
+                DateTime semEnd = seminarToUpdate.SeminarTime.AddHours(seminarToUpdate.SeminarLength);
 
-                foreach (Seminar s in db.Seminars.Where(s => s.CourseID == seminar.CourseID))
+                foreach (Seminar s in db.Seminars.Where(s => s.CourseID == seminarToUpdate.CourseID))
                 {
                     // Set dateTime and end dateTime for each seminar in the DB 
                     DateTime sStart = s.SeminarTime;
@@ -78,13 +83,13 @@ namespace ContosoUniversity2.Controllers
 
                 foreach (Student student in db.Students.ToList())
                 {
-                    if (student.Enrollments.Any(enrol => enrol.CourseID == seminar.CourseID))
+                    if (student.Enrollments.Any(enrol => enrol.CourseID == seminarToUpdate.CourseID))
                     {
                         foreach (Enrollment enrollment in student.Enrollments)
                         {
-                            if (enrollment.CourseID != seminar.CourseID)
+                            if (enrollment.CourseID != seminarToUpdate.CourseID)
                             {
-                                foreach (Seminar s in student.Seminars.Where(sem => sem.CourseID != seminar.CourseID))
+                                foreach (Seminar s in student.Seminars.Where(sem => sem.CourseID != seminarToUpdate.CourseID))
                                 {
                                     DateTime sStart = s.SeminarTime;
                                     DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
@@ -97,23 +102,41 @@ namespace ContosoUniversity2.Controllers
                     }
                     
                 }
+                // Check for overlap with other seminars in this location
+                Boolean overlapLocation = false;
 
-                // If there is an overlap, don't accept and display the error message
+                foreach (Seminar s in db.Seminars)
+                {
+                    if ((s.Location != "") && (s.Location == seminarToUpdate.Location))
+                    {
+                        DateTime sStart = s.SeminarTime;
+                        DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                        // Check for overlap
+                        if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlapLocation = true; }
+                    }
+                }
+
+
+
+                // If there is an overlap, don't accept and display the appropriate error message
                 if (overlap)
                 {
-                    ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
-                    PopulateCoursesDropDownList(seminar.Course);
+                    ModelState.AddModelError("CourseOverlap", COURSE_ERROR);
                 } 
                 else if (overlapStudent)
                 {
-                    ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
-                    PopulateCoursesDropDownList(seminar.Course);
+                    ModelState.AddModelError("StudentOverlap", STUDENT_ERROR);
+                }
+                else if (overlapLocation)
+                {
+                    ModelState.AddModelError("LocationOverlap", LOCATION_ERROR);                  
                 }
                 // Otherwise, add the new seminar
                 else
                 {
                     // Create a new list to hold the students that will be added
-                    seminar.Students = new List<Student>();
+                    seminarToUpdate.Students = new List<Student>();
 
                     // Find all students that are taking the course, because they will all have to go to the seminar
                     var studentsForSeminar = new List<Student>();
@@ -121,7 +144,7 @@ namespace ContosoUniversity2.Controllers
                     {
                         foreach (Enrollment enrollment in student.Enrollments)
                         {
-                            if (enrollment.CourseID == seminar.CourseID)
+                            if (enrollment.CourseID == seminarToUpdate.CourseID)
                             {
                                 studentsForSeminar.Add(student);
                             }
@@ -130,20 +153,20 @@ namespace ContosoUniversity2.Controllers
                     // Add all students on the course to all seminars for that course
                     foreach (Student student in studentsForSeminar)
                     {
-                        seminar.Students.Add(student);
+                        seminarToUpdate.Students.Add(student);
                     }
 
                     // Pick the course out of the DB according to ID
-                    seminar.Course = db.Courses.Single(i => i.CourseID == seminar.CourseID);
+                    seminarToUpdate.Course = db.Courses.Single(i => i.CourseID == seminarToUpdate.CourseID);
 
-                    db.Seminars.Add(seminar);
+                    db.Seminars.Add(seminarToUpdate);
                     db.SaveChanges();
                     return RedirectToAction("Index");
                 }
                 
             }
-
-            return View(seminar);
+            PopulateCoursesDropDownList(seminarToUpdate.Course);
+            return View(seminarToUpdate);
         }
 
         private void PopulateCoursesDropDownList(object selectedCourse = null)
@@ -165,7 +188,7 @@ namespace ContosoUniversity2.Controllers
             {
                 return HttpNotFound();
             }
-            PopulateInstructorsDropDownList(seminar);
+            PopulateInstructorsDropDownList(seminar, seminar.InstructorID);
             return View(seminar);
         }
 
@@ -228,25 +251,62 @@ namespace ContosoUniversity2.Controllers
                                 }
                             }
                         }
+                    }
+                    // Check for overlap with other seminars in this location
+                    Boolean overlapLocation = false;
 
+                    foreach (Seminar s in db.Seminars)
+                    {
+                        if ((s.Location != "") && (s.Location == seminarToUpdate.Location) &&
+                                                                 (s.SeminarID != seminarToUpdate.SeminarID))
+                        {
+                            DateTime sStart = s.SeminarTime;
+                            DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                            // Check for overlap
+                            if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlapLocation = true; }
+                        }
+                    }
+
+                    // Check for overlap with other seminars run by instructor
+                    Boolean overlapInstructor = false;
+
+                    foreach (Seminar s in db.Seminars.Where(s => (s.InstructorID == seminarToUpdate.InstructorID) &&
+                                                                 (s.SeminarID != seminarToUpdate.SeminarID)))
+                    {
+                        DateTime sStart = s.SeminarTime;
+                        DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                        // Check for overlap
+                        if (DateOverlap(semStart, semEnd, sStart, sEnd)) { overlapInstructor = true; }
                     }
 
                     // If there is an overlap, don't accept and display the error message
                     if (overlap)
                     {
-                        ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
-                        
+                        ModelState.AddModelError("CourseOverlap", COURSE_ERROR);
                     }
                     else if (overlapStudent)
                     {
-                        ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
-                        
+                        ModelState.AddModelError("StudentOverlap", STUDENT_ERROR);
                     }
+                    else if (overlapLocation)
+                    {
+                        ModelState.AddModelError("LocationOverlap", LOCATION_ERROR);
+                    }
+                    else if (overlapInstructor)
+                    {
+                        ModelState.AddModelError("InstructorOverlap", INSTRUCTOR_ERROR);
+                    }
+
                     // Otherwise, add the new seminar
                     else
                     {
-                        // Pick the instructor out of the DB according to ID
-                        seminarToUpdate.Instructor = db.Instructors.Single(i => i.ID == seminarToUpdate.InstructorID);
+                        // Pick the instructor out of the DB according to ID, if there is one
+                        if (seminarToUpdate.InstructorID != null)
+                        {
+                            seminarToUpdate.Instructor = db.Instructors.Single(i => i.ID == seminarToUpdate.InstructorID);
+                        }
 
                         db.SaveChanges();
                         return RedirectToAction("Index");
@@ -259,14 +319,15 @@ namespace ContosoUniversity2.Controllers
                     ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
                 }
             }
-            PopulateInstructorsDropDownList(seminarToUpdate);
+            PopulateInstructorsDropDownList(seminarToUpdate, seminarToUpdate.InstructorID);
             return View(seminarToUpdate);
         }
 
         private void PopulateInstructorsDropDownList(Seminar seminar, object selectedInstructor = null)
         {
             var instructorsQuery = from i in db.Instructors orderby i.LastName select i;
-            var instructorsOnCourse = instructorsQuery.Where(i => i.Courses.Any(c => c.CourseID == seminar.CourseID));
+            var instructorsOnCourse = instructorsQuery.Where(i => i.Courses.Any(c => c.CourseID == seminar.CourseID)).ToList();
+            instructorsOnCourse.Add(null);
             ViewBag.InstructorID = new SelectList(instructorsOnCourse, "ID", "FullName", selectedInstructor);
         }
 

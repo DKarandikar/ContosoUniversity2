@@ -19,10 +19,12 @@ namespace ContosoUniversity2.Models
 
         public int CourseID { get; set; }
         public int? InstructorID { get; set; }
+        [DisplayFormat(NullDisplayText = "No Location Yet")]
         public string Location { get; set; }
 
         public virtual Course Course { get; set; }
         public virtual ICollection<Student> Students { get; set; }
+        
         public virtual Instructor Instructor { get; set; }
     }
 }
