@@ -37,10 +37,6 @@ namespace ContosoUniversity2.Controllers
             {
                 ViewBag.CourseID = courseID.Value;
 
-                // Lazy loading
-                //viewModel.Enrollments = viewModel.Courses.Where(
-                //    x => x.CourseID == courseID).Single().Enrollments;
-
                 // Explicit loading
                 var selectedCourse = viewModel.Courses.Where(x => x.CourseID == courseID).Single();
                 db.Entry(selectedCourse).Collection(x => x.Enrollments).Load();
@@ -97,6 +93,7 @@ namespace ContosoUniversity2.Controllers
             }
             if (ModelState.IsValid)
             {
+                
                 db.Instructors.Add(instructor);
                 db.SaveChanges();
                 return RedirectToAction("Index");

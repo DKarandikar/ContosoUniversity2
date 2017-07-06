@@ -124,7 +124,6 @@ namespace ContosoUniversity2.Migrations
             context.SaveChanges();
 
             AddOrUpdateInstructor(context, "Chemistry", "Kapoor");
-            AddOrUpdateInstructor(context, "Chemistry", "Harui");
             AddOrUpdateInstructor(context, "Microeconomics", "Zheng");
             AddOrUpdateInstructor(context, "Macroeconomics", "Zheng");
 

@@ -18,8 +18,11 @@ namespace ContosoUniversity2.Models
         public int SeminarLength { get; set; }
 
         public int CourseID { get; set; }
+        public int? InstructorID { get; set; }
+        public string Location { get; set; }
 
         public virtual Course Course { get; set; }
         public virtual ICollection<Student> Students { get; set; }
+        public virtual Instructor Instructor { get; set; }
     }
 }

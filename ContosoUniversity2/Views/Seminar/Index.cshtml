@@ -23,6 +23,12 @@
         <th>
             Students
         </th>
+        <th>
+            Instructor 
+        </th>
+        <th>
+            Location
+        </th>
         <th>Options</th>
     </tr>
 
@@ -44,6 +50,12 @@
                     @student.FullName <br />
                 }
             }
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Instructor.FullName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Location)
         </td>
 
         <td>
