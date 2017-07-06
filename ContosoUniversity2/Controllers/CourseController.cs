@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using ContosoUniversity2.DAL;
 using ContosoUniversity2.Models;
+using ContosoUniversity2.ViewModels;
 using System.Data.Entity.Infrastructure;
 
 namespace ContosoUniversity2.Controllers
@@ -17,10 +18,20 @@ namespace ContosoUniversity2.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Course
-        public ActionResult Index()
+        public ActionResult Index(int? courseID)
         {
-            var courses = db.Courses.Include(c => c.Department);
-            return View(courses.ToList());
+            var viewModel = new CourseIndexData();
+            viewModel.Courses = db.Courses.Include(i => i.Enrollments);
+
+            if (courseID != null)
+            {
+                ViewBag.CourseID = courseID.Value;
+
+                viewModel.Enrollments = viewModel.Courses.Where(
+                    x => x.CourseID == courseID).Single().Enrollments;
+            }
+            
+            return View(viewModel);
         }
 
         // GET: Course/Details/5
