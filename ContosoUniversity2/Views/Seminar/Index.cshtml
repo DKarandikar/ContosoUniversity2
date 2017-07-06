@@ -54,9 +54,7 @@
                 @Html.DisplayFor(modelItem => item.SeminarLength) Hours
             </td>
         }
-        @*<td>
-            @Html.DisplayFor(modelItem => item.SeminarLength) @if (item.SeminarLength == 1) { Hour } else { Hours }
-        </td>*@
+
         <td>
             @{
                 foreach (var student in item.Students)
@@ -65,13 +63,38 @@
                 }
             }
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Instructor.FullName)
-        </td>
-        
-        <td>
-            @Html.DisplayFor(modelItem => item.Location)
-        </td>
+
+        @* If there is no instructor assigned yet; make the text red 
+           TODO: Create a ViewModel and move this logic out into controller, same below *@
+        @if (item.Instructor == null)
+       
+        {
+            <td>
+                    <font color="red">@Html.DisplayFor(modelItem => item.Instructor.FullName)</font>
+            </td>
+        }
+        else
+        {
+            <td>
+               @Html.DisplayFor(modelItem => item.Instructor.FullName)
+            </td>
+        }
+
+        @* If there is no location assigned yet; make the text red *@
+        @if (item.Location == null)
+
+        {
+            <td>
+                <font color="red">@Html.DisplayFor(modelItem => item.Location)</font>
+            </td>
+        }
+        else
+        {
+            <td>
+                @Html.DisplayFor(modelItem => item.Location)
+            </td>
+        }
+
 
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.SeminarID }) |
