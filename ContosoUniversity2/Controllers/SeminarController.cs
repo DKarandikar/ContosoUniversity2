@@ -40,7 +40,7 @@ namespace ContosoUniversity2.Controllers
         // GET: Seminar/Create
         public ActionResult Create()
         {
-            PopulateDepartmentsDropDownList();
+            PopulateCoursesDropDownList();
             return View();
         }
 
@@ -50,7 +50,7 @@ namespace ContosoUniversity2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID")] Seminar seminar)
+        public ActionResult Create([Bind(Include = "SeminarTime, SeminarLength, CourseID, Location")] Seminar seminar)
         {
             if (ModelState.IsValid)
             {
@@ -102,12 +102,12 @@ namespace ContosoUniversity2.Controllers
                 if (overlap)
                 {
                     ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
-                    PopulateDepartmentsDropDownList();
+                    PopulateCoursesDropDownList(seminar.Course);
                 } 
                 else if (overlapStudent)
                 {
                     ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
-                    PopulateDepartmentsDropDownList();
+                    PopulateCoursesDropDownList(seminar.Course);
                 }
                 // Otherwise, add the new seminar
                 else
@@ -133,6 +133,9 @@ namespace ContosoUniversity2.Controllers
                         seminar.Students.Add(student);
                     }
 
+                    // Pick the course out of the DB according to ID
+                    seminar.Course = db.Courses.Single(i => i.CourseID == seminar.CourseID);
+
                     db.Seminars.Add(seminar);
                     db.SaveChanges();
                     return RedirectToAction("Index");
@@ -141,6 +144,13 @@ namespace ContosoUniversity2.Controllers
             }
 
             return View(seminar);
+        }
+
+        private void PopulateCoursesDropDownList(object selectedCourse = null)
+        {
+            var coursesQuery = from d in db.Courses orderby d.Title select d;
+
+            ViewBag.CourseID = new SelectList(coursesQuery, "CourseID", "Title", selectedCourse);
         }
 
         // GET: Seminar/Edit/5
@@ -155,6 +165,7 @@ namespace ContosoUniversity2.Controllers
             {
                 return HttpNotFound();
             }
+            PopulateInstructorsDropDownList(seminar);
             return View(seminar);
         }
 
@@ -169,7 +180,7 @@ namespace ContosoUniversity2.Controllers
             }
             var seminarToUpdate = db.Seminars.Find(id);
             if (TryUpdateModel(seminarToUpdate, "",
-               new string[] { "SeminarTime", "SeminarLength" }))
+               new string[] { "SeminarTime", "SeminarLength" , "Location", "InstructorID"}))
             {
                 try
                 {
@@ -224,16 +235,19 @@ namespace ContosoUniversity2.Controllers
                     if (overlap)
                     {
                         ModelState.AddModelError("CourseOverlap", "There will be an overlap for seminars on this course. Try another time.");
-                        PopulateDepartmentsDropDownList();
+                        
                     }
                     else if (overlapStudent)
                     {
                         ModelState.AddModelError("StudentOverlap", "There will be an overlap for some student on this course with another seminar they have. Try another time.");
-                        PopulateDepartmentsDropDownList();
+                        
                     }
                     // Otherwise, add the new seminar
                     else
                     {
+                        // Pick the instructor out of the DB according to ID
+                        seminarToUpdate.Instructor = db.Instructors.Single(i => i.ID == seminarToUpdate.InstructorID);
+
                         db.SaveChanges();
                         return RedirectToAction("Index");
                     }
@@ -245,14 +259,15 @@ namespace ContosoUniversity2.Controllers
                     ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
                 }
             }
+            PopulateInstructorsDropDownList(seminarToUpdate);
             return View(seminarToUpdate);
         }
 
-        private void PopulateDepartmentsDropDownList(object selectedCourse = null)
+        private void PopulateInstructorsDropDownList(Seminar seminar, object selectedInstructor = null)
         {
-            var coursesQuery = from d in db.Courses orderby d.Title select d;
-
-            ViewBag.CourseID = new SelectList(coursesQuery, "CourseID", "Title", selectedCourse);
+            var instructorsQuery = from i in db.Instructors orderby i.LastName select i;
+            var instructorsOnCourse = instructorsQuery.Where(i => i.Courses.Any(c => c.CourseID == seminar.CourseID));
+            ViewBag.InstructorID = new SelectList(instructorsOnCourse, "ID", "FullName", selectedInstructor);
         }
 
         // GET: Seminar/Delete/5
