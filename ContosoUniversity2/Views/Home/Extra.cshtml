@@ -1,0 +1,35 @@
+﻿@model ContosoUniversity2.ViewModels.ExtraData
+@{
+    ViewBag.Title = "Extra";
+}
+
+<h2>Extra</h2>
+
+@using (Html.BeginForm("Extra", "Home", FormMethod.Post))
+{
+    @Html.EditorFor(x => x.A)
+    @Html.Label("modulo")
+    @Html.EditorFor(x => x.B)
+    <input type="submit" value="Calculate" />
+}
+
+@if (Model.B != 0 && Model.B>0 && Model.A >=0){<p>Result is: @Html.DisplayFor(x => x.Result)</p>}
+else { <p> @Html.ValidationMessage("Divide0") @Html.ValidationMessage("Less0") </p>}
+
+
+
+@using (Html.BeginForm("Extra", "Home", FormMethod.Post))
+{
+    @Html.EditorFor(x => x.FirstWord)
+    @Html.Label(" compare with ")
+    @Html.EditorFor(x => x.SecondWord)
+    <input type="submit" value="Calculate" />
+}
+@if (ViewBag.WordError)
+{
+    <p> @Html.DisplayFor(x => x.ResultWord)</p>
+}
+else
+{
+    <p>Earliest word alphabetically is: @Html.DisplayFor(x => x.ResultWord)</p>
+}

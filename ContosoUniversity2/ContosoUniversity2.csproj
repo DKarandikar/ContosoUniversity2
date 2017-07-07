@@ -258,6 +258,7 @@
     <Compile Include="ViewModels\CourseIndexData.cs" />
     <Compile Include="ViewModels\CourseStatisticsData.cs" />
     <Compile Include="ViewModels\EnrollmentDateGroup.cs" />
+    <Compile Include="ViewModels\ExtraData.cs" />
     <Compile Include="ViewModels\InstructorIndexData.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +333,7 @@
     <Content Include="Views\Enrollment\Edit.cshtml" />
     <Content Include="Views\Enrollment\Index.cshtml" />
     <Content Include="Views\Home\Statistics.cshtml" />
+    <Content Include="Views\Home\Extra.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
