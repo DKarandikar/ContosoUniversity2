@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ContosoUniversity2.ViewModels.CourseStatisticsData>
+﻿@model ContosoUniversity2.ViewModels.CourseStatisticsTwoQueryData
 
 @{
     ViewBag.Title = "Statistics";
@@ -8,17 +8,17 @@
 
 <table>
     <tr>
-        <th>
+        <th width="150">
             Course Title
         </th>
-        <th>
+        <th width="80">
             Course ID
         </th>
         <th>
             Number of students
         </th>
     </tr>
-    @foreach (var item in Model)
+    @foreach (var item in Model.MainQuery)
     {
         <tr>
             <td>
@@ -33,3 +33,48 @@
         </tr>
     }
 </table>
+
+<h3>
+    Search
+</h3>
+
+@using (Html.BeginForm("Statistics", "Home", FormMethod.Get))
+{
+    <p>
+        Find by title or ID: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+        <button type="submit" class="btn btn-w-m btn-primary" name="Clear" value=true>Clear</button>
+    </p>
+    
+}
+
+@if (!(Model.SecondQuery == null))
+{
+    <table>
+        <tr>
+            <th width="150">
+                Course Title
+            </th>
+            <th width="80">
+                Course ID
+            </th>
+            <th>
+                Number of students
+            </th>
+        </tr>
+        @foreach (var item in Model.SecondQuery)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CourseTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CourseID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StudentCount)
+                </td>
+            </tr>
+        }
+    </table>
+}

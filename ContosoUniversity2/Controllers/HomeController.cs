@@ -38,11 +38,25 @@ namespace ContosoUniversity2.Controllers
             return View();
         }
 
-        public ActionResult Statistics()
+        public ActionResult Statistics(string searchString, Boolean clear = false)
         {
             var result = db.Database.SqlQuery<CourseStatisticsData>("StudentNoByCourseID").ToList();
+            var mod = new CourseStatisticsTwoQueryData();
 
-            return View(result);
+            mod.MainQuery = result;
+
+            ViewBag.CurrentSearch = searchString;
+
+            if (searchString != null)
+            {
+                var result2 = db.Database.SqlQuery<CourseStatisticsData>("StudentNoByCourseIDSearch @Search",
+                    new System.Data.SqlClient.SqlParameter("Search",searchString)).ToList();
+                mod.SecondQuery = result2;
+            }
+
+            if (clear) { mod.SecondQuery = null; }
+
+            return View(mod);
         }
 
         //[HttpPost]

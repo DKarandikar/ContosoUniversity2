@@ -245,6 +245,10 @@
     <Compile Include="Migrations\201707071225066_NewSP2.Designer.cs">
       <DependentUpon>201707071225066_NewSP2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201707071434422_NewSPParameter.cs" />
+    <Compile Include="Migrations\201707071434422_NewSPParameter.Designer.cs">
+      <DependentUpon>201707071434422_NewSPParameter.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Course.cs" />
     <Compile Include="Models\Department.cs" />
@@ -257,6 +261,7 @@
     <Compile Include="ViewModels\AssignedCourseData.cs" />
     <Compile Include="ViewModels\CourseIndexData.cs" />
     <Compile Include="ViewModels\CourseStatisticsData.cs" />
+    <Compile Include="ViewModels\CourseStatisticsTwoQueryData.cs" />
     <Compile Include="ViewModels\EnrollmentDateGroup.cs" />
     <Compile Include="ViewModels\ExtraData.cs" />
     <Compile Include="ViewModels\InstructorIndexData.cs" />
@@ -394,6 +399,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201707071225066_NewSP2.resx">
       <DependentUpon>201707071225066_NewSP2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707071434422_NewSPParameter.resx">
+      <DependentUpon>201707071434422_NewSPParameter.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
