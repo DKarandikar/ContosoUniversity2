@@ -119,8 +119,6 @@ namespace ContosoUniversity2.Controllers
         }
 
         // POST: Enrollment/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "EnrollmentID, Grade")] Enrollment enrollment)
@@ -158,6 +156,8 @@ namespace ContosoUniversity2.Controllers
         {
             Enrollment enrollment = db.Enrollments.Find(id);
             db.Enrollments.Remove(enrollment);
+            
+            // If a student is un-enrolled from a course; remove them from all seminars
             foreach (Seminar s in db.Seminars.Where(s => s.CourseID == enrollment.CourseID))
             {
                 s.Students.Remove(db.Students.Find(enrollment.StudentID));
