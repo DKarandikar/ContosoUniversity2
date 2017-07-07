@@ -46,26 +46,59 @@ namespace ContosoUniversity2.Controllers
         }
 
         // POST: Enrollment/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "EnrollmentID,CourseID,StudentID,Grade")] Enrollment enrollment)
         {
             if (ModelState.IsValid)
             {
-                foreach (Seminar s in db.Seminars.Where(s => s.CourseID == enrollment.CourseID))
+                // Check for overlap with other courses the student is taking 
+                Boolean seminarOverlap = false; 
+
+                foreach (Seminar s in db.Students.Single(st => st.ID == enrollment.StudentID).Seminars.Where(sem => sem.CourseID != enrollment.CourseID))
                 {
-                    s.Students.Add(db.Students.Single(student => student.ID == enrollment.StudentID));
+                    foreach (Seminar seminar in db.Seminars.Where(sem => sem.CourseID == enrollment.CourseID))
+                    {
+                        DateTime semStart = seminar.SeminarTime;
+                        DateTime semEnd = seminar.SeminarTime.AddHours(seminar.SeminarLength);
+                        DateTime sStart = s.SeminarTime;
+                        DateTime sEnd = s.SeminarTime.AddHours(s.SeminarLength);
+
+                        if (DateOverlap(semStart, semEnd, sStart, sEnd)) { seminarOverlap = true; }
+                    }
                 }
-                db.Enrollments.Add(enrollment);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (seminarOverlap)
+                {
+                    ModelState.AddModelError("SeminarOverlap", "There will be an overlap with other seminars this student is taking. They cannot enroll without seminars changing.");
+                }
+                else
+                {
+                    foreach (Seminar s in db.Seminars.Where(s => s.CourseID == enrollment.CourseID))
+                    {
+                        s.Students.Add(db.Students.Single(student => student.ID == enrollment.StudentID));
+                    }
+                    db.Enrollments.Add(enrollment);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                ViewBag.CourseID = new SelectList(db.Courses, "CourseID", "Title");
+                ViewBag.StudentID = new SelectList(db.Students, "ID", "LastName");
+                return View();
+                    
             }
 
             ViewBag.CourseID = new SelectList(db.Courses, "CourseID", "Title", enrollment.CourseID);
             ViewBag.StudentID = new SelectList(db.Students, "ID", "LastName", enrollment.StudentID);
             return View(enrollment);
+        }
+
+        private bool DateOverlap(DateTime d1_start, DateTime d1_end, DateTime d2_start, DateTime d2_end)
+        {
+            if (d1_start <= d2_start && d2_start <= d1_end) { return true; }
+            else if (d1_start <= d2_end && d2_end <= d1_end) { return true; }
+            else if (d2_start <= d1_start && d1_start <= d2_end) { return true; }
+            else if (d2_end <= d1_end && d1_end <= d2_start) { return true; }
+            return false;
         }
 
         // GET: Enrollment/Edit/5
@@ -90,7 +123,7 @@ namespace ContosoUniversity2.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "EnrollmentID,CourseID,StudentID,Grade")] Enrollment enrollment)
+        public ActionResult Edit([Bind(Include = "EnrollmentID, Grade")] Enrollment enrollment)
         {
             if (ModelState.IsValid)
             {

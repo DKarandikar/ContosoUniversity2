@@ -166,6 +166,26 @@ namespace ContosoUniversity2.Controllers
 
                     UpdateInstructorCourses(selectedCourses, instructorToUpdate);
 
+                    // If the instructor no longer teaches a course; remove them from the seminars
+
+                    // Construct a list of courseIDs
+                    List<int> courseIDs = new List<int>();
+                    foreach (Course c in instructorToUpdate.Courses)
+                    {
+                        courseIDs.Add(c.CourseID);
+                    }
+
+                    // Check each seminar and if it has the same courseID as a course they aren't teaching, set instructor to null
+                    foreach (Seminar s in db.Seminars.Where(sem => sem.InstructorID == instructorToUpdate.ID))
+                    {
+                        if (!(courseIDs.Any(i => i == s.CourseID)))
+                        {
+                            s.InstructorID = null;
+                            s.Instructor = null;
+                        }
+ 
+                    }
+
                     db.SaveChanges();
 
                     return RedirectToAction("Index");
@@ -243,6 +263,16 @@ namespace ContosoUniversity2.Controllers
                 department.InstructorID = null;
             }
 
+            // If the instructor no longer teaches a course; remove them from the seminars
+
+            // Check each seminar and if it is taught by them, set instructor to null
+            foreach (Seminar s in db.Seminars.Where(sem => sem.InstructorID == instructor.ID))
+            {  
+                s.InstructorID = null;
+                s.Instructor = null;
+            }
+
+            db.Instructors.Remove(instructor);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

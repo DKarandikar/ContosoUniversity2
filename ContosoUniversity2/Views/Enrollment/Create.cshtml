@@ -16,20 +16,21 @@
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
-            @Html.LabelFor(model => model.CourseID, "CourseID", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.CourseID, "Course Name", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownList("CourseID", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.CourseID, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.Course.Title, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.StudentID, "StudentID", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.StudentID, "Student Last Name", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownList("StudentID", null, htmlAttributes: new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.StudentID, "", new { @class = "text-danger" })
             </div>
         </div>
+        @Html.ValidationMessage("SeminarOverlap")
 
         <div class="form-group">
             @Html.LabelFor(model => model.Grade, htmlAttributes: new { @class = "control-label col-md-2" })
