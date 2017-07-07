@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 using ContosoUniversity2.DAL;
 using ContosoUniversity2.ViewModels;
@@ -34,6 +35,13 @@ namespace ContosoUniversity2.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
+        }
+
+        public ActionResult Statistics()
+        {
+            var result = db.Database.SqlQuery<CourseStatisticsData>("StudentNoByCourseID").ToList();
+
+            return View(result);
         }
 
         protected override void Dispose(bool disposing)
