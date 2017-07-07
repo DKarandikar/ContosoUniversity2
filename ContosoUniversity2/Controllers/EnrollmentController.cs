@@ -129,8 +129,6 @@ namespace ContosoUniversity2.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.CourseID = new SelectList(db.Courses, "CourseID", "Title", enrollment.CourseID);
-            ViewBag.StudentID = new SelectList(db.Students, "ID", "LastName", enrollment.StudentID);
             return View(enrollment);
         }
 
