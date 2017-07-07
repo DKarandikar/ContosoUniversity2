@@ -158,6 +158,10 @@ namespace ContosoUniversity2.Controllers
         {
             Enrollment enrollment = db.Enrollments.Find(id);
             db.Enrollments.Remove(enrollment);
+            foreach (Seminar s in db.Seminars.Where(s => s.CourseID == enrollment.CourseID))
+            {
+                s.Students.Remove(db.Students.Find(enrollment.StudentID));
+            }
             db.SaveChanges();
             return RedirectToAction("Index");
         }

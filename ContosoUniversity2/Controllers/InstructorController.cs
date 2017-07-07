@@ -93,10 +93,32 @@ namespace ContosoUniversity2.Controllers
             }
             if (ModelState.IsValid)
             {
+                // Check if trying to assign the same office
+                Boolean officeOverlap = false;
+
+                foreach (Instructor i in db.Instructors)
+                {
+                    if ((i.OfficeAssignment != null) && (instructor.OfficeAssignment != null))
+                    {
+                        if ((i.OfficeAssignment.Location == instructor.OfficeAssignment.Location) &&
+                                instructor.OfficeAssignment.Location != null)
+                        {
+                            officeOverlap = true;
+                        }
+                    }
+                    
+                }
+                if (officeOverlap)
+                {
+                    ModelState.AddModelError("OfficeOverlap", "Someone already has this office, choose another location or leave unnasigned.");
+                }
+                else
+                {
+                    db.Instructors.Add(instructor);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
                 
-                db.Instructors.Add(instructor);
-                db.SaveChanges();
-                return RedirectToAction("Index");
             }
             PopulateAssignedCourseData(instructor);
             return View(instructor);
@@ -122,22 +144,7 @@ namespace ContosoUniversity2.Controllers
             return View(instructor);
         }
 
-        private void PopulateAssignedCourseData(Instructor instructor)
-        {
-            var allCourses = db.Courses;
-            var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
-            var viewModel = new List<AssignedCourseData>();
-            foreach (var course in allCourses)
-            {
-                viewModel.Add(new AssignedCourseData
-                {
-                    CourseID = course.CourseID,
-                    Title = course.Title,
-                    Assigned = instructorCourses.Contains(course.CourseID)
-                });
-            }
-            ViewBag.Courses = viewModel;
-        }
+
 
         // POST: Instructor/Edit/5
         [HttpPost, ActionName("Edit")]
@@ -159,36 +166,62 @@ namespace ContosoUniversity2.Controllers
             {
                 try
                 {
-                    if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location))
+                    // Check if trying to assign the same office
+                    Boolean officeOverlap = false;
+
+                    foreach (Instructor i in db.Instructors)
                     {
-                        instructorToUpdate.OfficeAssignment = null;
-                    }
-
-                    UpdateInstructorCourses(selectedCourses, instructorToUpdate);
-
-                    // If the instructor no longer teaches a course; remove them from the seminars
-
-                    // Construct a list of courseIDs
-                    List<int> courseIDs = new List<int>();
-                    foreach (Course c in instructorToUpdate.Courses)
-                    {
-                        courseIDs.Add(c.CourseID);
-                    }
-
-                    // Check each seminar and if it has the same courseID as a course they aren't teaching, set instructor to null
-                    foreach (Seminar s in db.Seminars.Where(sem => sem.InstructorID == instructorToUpdate.ID))
-                    {
-                        if (!(courseIDs.Any(i => i == s.CourseID)))
+                        if (i.ID != instructorToUpdate.ID) //Ensure this instructor doesn't block the assignment
                         {
-                            s.InstructorID = null;
-                            s.Instructor = null;
-                        }
- 
+                            if ((i.OfficeAssignment != null) && (instructorToUpdate.OfficeAssignment != null))
+                            {
+                                if ((i.OfficeAssignment.Location == instructorToUpdate.OfficeAssignment.Location) &&
+                                    instructorToUpdate.OfficeAssignment.Location != null)
+                                {
+                                    officeOverlap = true;
+                                }
+                            }
+                        }           
                     }
 
-                    db.SaveChanges();
+                    if (officeOverlap)
+                    {
+                        ModelState.AddModelError("OfficeOverlap", "Someone already has this office, choose another location or leave unnasigned.");
+                    }
+                    else
+                    {
 
-                    return RedirectToAction("Index");
+                        if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location))
+                        {
+                            instructorToUpdate.OfficeAssignment = null;
+                        }
+
+                        UpdateInstructorCourses(selectedCourses, instructorToUpdate);
+
+                        // If the instructor no longer teaches a course; remove them from the seminars
+
+                        // Construct a list of courseIDs
+                        List<int> courseIDs = new List<int>();
+                        foreach (Course c in instructorToUpdate.Courses)
+                        {
+                            courseIDs.Add(c.CourseID);
+                        }
+
+                        // Check each seminar and if it has the same courseID as a course they aren't teaching, set instructor to null
+                        foreach (Seminar s in db.Seminars.Where(sem => sem.InstructorID == instructorToUpdate.ID))
+                        {
+                            if (!(courseIDs.Any(i => i == s.CourseID)))
+                            {
+                                s.InstructorID = null;
+                                s.Instructor = null;
+                            }
+
+                        }
+
+                        db.SaveChanges();
+
+                        return RedirectToAction("Index");
+                    }
                 }
                 catch (RetryLimitExceededException /* dex */)
                 {
@@ -199,6 +232,24 @@ namespace ContosoUniversity2.Controllers
             PopulateAssignedCourseData(instructorToUpdate);
             return View(instructorToUpdate);
         }
+
+        private void PopulateAssignedCourseData(Instructor instructor)
+        {
+            var allCourses = db.Courses;
+            var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
+            var viewModel = new List<AssignedCourseData>();
+            foreach (var course in allCourses)
+            {
+                viewModel.Add(new AssignedCourseData
+                {
+                    CourseID = course.CourseID,
+                    Title = course.Title,
+                    Assigned = instructorCourses.Contains(course.CourseID)
+                });
+            }
+            ViewBag.Courses = viewModel;
+        }
+
         private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
         {
             if (selectedCourses == null)
@@ -264,7 +315,6 @@ namespace ContosoUniversity2.Controllers
             }
 
             // If the instructor no longer teaches a course; remove them from the seminars
-
             // Check each seminar and if it is taught by them, set instructor to null
             foreach (Seminar s in db.Seminars.Where(sem => sem.InstructorID == instructor.ID))
             {  
