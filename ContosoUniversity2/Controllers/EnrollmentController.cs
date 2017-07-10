@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using ContosoUniversity2.DAL;
 using ContosoUniversity2.Models;
+using System.Data.Entity.Infrastructure;
 
 namespace ContosoUniversity2.Controllers
 {
@@ -119,17 +120,31 @@ namespace ContosoUniversity2.Controllers
         }
 
         // POST: Enrollment/Edit/5
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "EnrollmentID, Grade")] Enrollment enrollment)
+        public ActionResult EditPost(int? id)
         {
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                db.Entry(enrollment).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            return View(enrollment);
+            var enrollmentToUpdate = db.Enrollments.Find(id);
+            if (TryUpdateModel(enrollmentToUpdate, "",
+               new string[] { "Grade" }))
+            {
+                try
+                {
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                catch (RetryLimitExceededException /* dex */)
+                {
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                }
+            }
+            return View(enrollmentToUpdate);
         }
 
         // GET: Enrollment/Delete/5

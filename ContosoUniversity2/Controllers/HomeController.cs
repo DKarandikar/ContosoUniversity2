@@ -134,19 +134,42 @@ namespace ContosoUniversity2.Controllers
                 string nth_A = Char.ToLower(A[sRef]).ToString();
                 string nth_B = Char.ToLower(B[sRef]).ToString();
 
-                if (values[nth_A] < values[nth_B])
+                int tickAlongList = 0; // This will tick along the alphabet and be used to say which is first
+
+                while ((!found) && (tickAlongList < 26))
                 {
-                    found = true;
-                    result = A;
+                    if ((letters[tickAlongList] == nth_A) && (letters[tickAlongList] != nth_B))
+                    {
+                        found = true;
+                        result = A;
+                    } 
+                    else if ((letters[tickAlongList] == nth_B) && (letters[tickAlongList] != nth_A))
+                    {
+                        found = true;
+                        result = B;
+                    }
+                    else
+                    {
+                        tickAlongList += 1;
+                    }
                 }
-                else if (values[nth_A] > values[nth_B])
-                {
-                    found = true;
-                    result = B;
-                } else
-                {
+                // This is a better alternative using the above dictionary; but it does use > and < essentially to compare letters
+
+                //if (values[nth_A] < values[nth_B])
+                //{
+                //    found = true;
+                //    result = A;
+                //}
+                //else if (values[nth_A] > values[nth_B])
+                //{
+                //    found = true;
+                //    result = B;
+                //} else
+                //    sRef += 1;
+                //{
+
                     sRef += 1;
-                }
+
             }
 
             if (result == "These are the same")
