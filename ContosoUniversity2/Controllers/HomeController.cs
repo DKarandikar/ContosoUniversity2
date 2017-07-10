@@ -106,28 +106,29 @@ namespace ContosoUniversity2.Controllers
             Boolean found = false;
             String result = "These are the same";
 
+            // Check first for any Null words; or any unwanted characters
             if (A == null || B == null)
             {
                 ViewBag.WordError = true;
                 return "";
             }
-
             if (!((A.All(Char.IsLetter)) && (B.All(Char.IsLetter)))){
                 ViewBag.WordError = true;
-                return "Only letters allowed";
-                
+                return "Only letters allowed";  
             }
 
+            // Define a list of letters in alphabet order
             List<string> letters = new List<string>{ "a","b","c","d","e","f","g","h","i","j","k","l","m"
                 ,"n","o","p","q","r","s","t","u","v","w","x","y","z" };
 
-            Dictionary<string, int> values = new Dictionary<string, int>();
-            int i = 1;
-            foreach (string s in letters)
-            {
-                values[s] = i;
-                i += 1;
-            }
+            // Use this dictionary only for the alternate method
+            //Dictionary<string, int> values = new Dictionary<string, int>();
+            //int i = 1;
+            //foreach (string s in letters)
+            //{
+            //    values[s] = i;
+            //    i += 1;
+            //}
 
             int sRef = 0; //This will tick along the string
 
@@ -155,7 +156,7 @@ namespace ContosoUniversity2.Controllers
                         tickAlongList += 1;
                     }
                 }
-                // This is a better alternative using the above dictionary; but it does use > and < essentially to compare letters
+                // This is a better alternative using the above dictionary; but it does use > and < to compare letters
 
                 //if (values[nth_A] < values[nth_B])
                 //{
@@ -201,6 +202,7 @@ namespace ContosoUniversity2.Controllers
             {
                 return "";
             }
+            // Remove any spaces and new line characters; but only those will not flag as "Only Letters Allowed"
             string WordsWithoutSpaces = Words.Replace(" ", string.Empty).Replace(System.Environment.NewLine, string.Empty);
 
             words = WordsWithoutSpaces.Split(',').ToList();
@@ -208,6 +210,7 @@ namespace ContosoUniversity2.Controllers
             int finalWordRef = words.Count;
             int currentWordRef = 0;
 
+            // Essentially do a pairwise sort along the list repeatedly; requires n*(n+1)/2 comparisons
             while (finalWordRef >0)
             {
                 while (currentWordRef < finalWordRef-1 )
@@ -215,6 +218,8 @@ namespace ContosoUniversity2.Controllers
                     string wordA = words[currentWordRef];
                     string wordB = words[currentWordRef+1];
                     string firstWord;
+
+                    // If the words are the same; then don't use the CompareWords function because it will return 'these are the same'
                     if (wordA == wordB)
                     {
                         firstWord = wordA;
@@ -226,6 +231,7 @@ namespace ContosoUniversity2.Controllers
 
                     if (firstWord == "Only letters allowed") { return "Only letters allowed"; }
 
+                    // Set the earlier word; and then the second as appropriate
                     words[currentWordRef] = firstWord;
                     if (wordA == firstWord)
                     {
