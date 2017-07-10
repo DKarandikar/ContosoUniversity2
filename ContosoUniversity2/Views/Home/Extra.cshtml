@@ -3,7 +3,19 @@
     ViewBag.Title = "Extra";
 }
 
+<style>
+    .myEditor {
+        width: 400px;
+        height: 60px;
+    }
+</style>
+
+
 <h2>Extra</h2>
+
+<hr />
+<h4>Modulus Calculation</h4>
+
 
 @using (Html.BeginForm("Extra", "Home", FormMethod.Post))
 {
@@ -16,6 +28,9 @@
 @if (Model.B != 0 && Model.B>0 && Model.A >=0){<p>Result is: @Html.DisplayFor(x => x.Result)</p>}
 else { <p> @Html.ValidationMessage("Divide0") @Html.ValidationMessage("Less0") </p>}
 
+<hr />
+<br />
+<h4>Two Words Alphabetic Comparison</h4>
 
 
 @using (Html.BeginForm("Extra", "Home", FormMethod.Post))
@@ -32,4 +47,29 @@ else { <p> @Html.ValidationMessage("Divide0") @Html.ValidationMessage("Less0") <
 else
 {
     <p>Earliest word alphabetically is: @Html.DisplayFor(x => x.ResultWord)</p>
+}
+
+<hr />
+<br />
+<h4>List Alphabetic Comparison</h4>
+
+
+
+<p> Please separate list of words below by commas</p>
+<br />
+
+
+@using (Html.BeginForm("Extra", "Home", FormMethod.Post))
+{
+    @Html.TextAreaFor(x => x.WordList, new { @class = "myEditor" })
+    <input type="submit" value="Calculate" />
+}
+<p> <br/> </p>
+@if  (Model.ResultList == "Only letters allowed")
+{
+    <p> @Html.DisplayFor(x => x.ResultList)</p>
+}
+else
+{
+    <p> In order, these are: @Html.DisplayFor(x => x.ResultList)</p>
 }

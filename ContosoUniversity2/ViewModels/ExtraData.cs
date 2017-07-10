@@ -12,5 +12,9 @@ namespace ContosoUniversity2.ViewModels
         public string FirstWord { get; set; }
         public string SecondWord { get; set; }
         public string ResultWord { get; set; }
+
+
+        public string WordList { get; set; }
+        public string ResultList { get; set; }
     }
 }

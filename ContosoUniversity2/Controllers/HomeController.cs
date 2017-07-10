@@ -95,6 +95,8 @@ namespace ContosoUniversity2.Controllers
             model.Result = remainder;
 
             model.ResultWord = CompareWords(model.FirstWord, model.SecondWord);
+
+            model.ResultList = CompareList(model.WordList);
             
             return View(model);
         }
@@ -190,6 +192,60 @@ namespace ContosoUniversity2.Controllers
                
             }
             return result;
+        }
+
+        private string CompareList(string Words)
+        {
+            List<string> words = new List<string>();
+            if (Words == null)
+            {
+                return "";
+            }
+            string WordsWithoutSpaces = Words.Replace(" ", string.Empty).Replace(System.Environment.NewLine, string.Empty);
+
+            words = WordsWithoutSpaces.Split(',').ToList();
+
+            int finalWordRef = words.Count;
+            int currentWordRef = 0;
+
+            while (finalWordRef >0)
+            {
+                while (currentWordRef < finalWordRef-1 )
+                {
+                    string wordA = words[currentWordRef];
+                    string wordB = words[currentWordRef+1];
+                    string firstWord;
+                    if (wordA == wordB)
+                    {
+                        firstWord = wordA;
+                    }
+                    else
+                    {
+                        firstWord = CompareWords(wordA, wordB);
+                    }
+
+                    if (firstWord == "Only letters allowed") { return "Only letters allowed"; }
+
+                    words[currentWordRef] = firstWord;
+                    if (wordA == firstWord)
+                    {
+                        words[currentWordRef + 1] = wordB;
+                    } else
+                    {
+                        words[currentWordRef + 1] = wordA;
+                    }
+                    currentWordRef += 1;                   
+                }
+                finalWordRef -= 1;
+                currentWordRef = 0;
+            }
+
+            string result = "";
+            foreach (String s in words)
+            {
+                result = result + s + ", ";
+            }
+            return result.TrimEnd(new char[] { ',', ' ' });
         }
 
         protected override void Dispose(bool disposing)
