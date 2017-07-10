@@ -9,6 +9,8 @@ using System.Web.Mvc;
 using ContosoUniversity2.DAL;
 using ContosoUniversity2.Models;
 using System.Data.Entity.Infrastructure;
+using PagedList;
+using ContosoUniversity2.ViewModels;
 
 namespace ContosoUniversity2.Controllers
 {
@@ -22,9 +24,14 @@ namespace ContosoUniversity2.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Seminar
-        public ActionResult Index()
+        public ActionResult Index(int? page, int pageSize = 5)
         {
-            return View(db.Seminars.OrderBy(s => s.SeminarTime).ToList());
+
+            ViewBag.PageSize = new SelectList(new int[] { 1, 5, 10, 25, 50 }, pageSize);
+            ViewBag.PageSizeCurrent = pageSize;
+
+            int pageNumber = (page ?? 1);
+            return View(db.Seminars.OrderBy(s => s.SeminarTime).ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Seminar/Details/5
@@ -364,6 +371,23 @@ namespace ContosoUniversity2.Controllers
             else if (d2_start <= d1_start && d1_start <= d2_end) { return true; }
             else if (d2_end <= d1_end && d1_end <= d2_start) { return true; }
             return false;
+        }
+
+        public ActionResult Search(string SearchString)
+        {
+            //var result = db.Database.SqlQuery<SeminarSearchData>("SeminarsByName").ToList();
+            ViewBag.CurrentSearch = SearchString;
+
+            if (SearchString != null)
+            {
+                var result = db.Database.SqlQuery<SeminarSearchData>("SeminarsByName @Search",
+                    new System.Data.SqlClient.SqlParameter("Search", SearchString)).ToList();
+
+                return View(result);
+            }
+
+            return View();
+            
         }
 
 

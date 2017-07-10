@@ -70,7 +70,6 @@ namespace ContosoUniversity2.Controllers
                     break;
             }
 
-            //int pageSize = 5;
             int pageNumber = (page ?? 1);
             return View(students.ToPagedList(pageNumber, pageSize));
         }

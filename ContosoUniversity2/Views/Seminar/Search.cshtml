@@ -1,0 +1,60 @@
+﻿@model IEnumerable<ContosoUniversity2.ViewModels.SeminarSearchData>
+
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+@using (Html.BeginForm("Search", "Seminar", FormMethod.Get))
+{
+    <p>
+        Find by student name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+        <button type="submit" class="btn btn-w-m btn-primary" name="Clear" value=true>Clear</button>
+    </p>
+
+}
+@if (Model != null)
+{
+    <table>
+        <tr>
+            <th width="150">
+                Date and Time
+            </th>
+            <th width="80">
+                Title
+            </th>
+            <th width="200">
+                Full Names
+            </th>
+            <th width="140">
+                Location
+            </th>
+            <th>
+                Instructor
+            </th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateAndTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullNames)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Instructor)
+                </td>
+
+            </tr>
+        }
+    </table>
+}

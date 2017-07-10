@@ -1,4 +1,6 @@
-﻿@model IEnumerable<ContosoUniversity2.Models.Seminar>
+﻿@model PagedList.IPagedList<ContosoUniversity2.Models.Seminar>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Seminars";
@@ -15,7 +17,7 @@
             Course
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.SeminarTime)
+            Seminar Time
         </th>
         <th>
             Seminar Length
@@ -107,3 +109,16 @@
 
 </table>
 
+@using (Html.BeginForm("Index", "Seminar", FormMethod.Get))
+{
+    <p>
+        Set page size: @*@Html.TextBox("PageSize", ViewBag.PageSize as string)*@
+        @Html.DropDownList("PageSize", null, htmlAttributes: new { @class = "form-control" })
+        <input type="submit" value="Set" />
+    </p>
+}
+
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, pagesize = ViewBag.PageSizeCurrent}))
