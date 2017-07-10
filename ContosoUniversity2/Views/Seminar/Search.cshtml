@@ -31,9 +31,13 @@
             <th width="140">
                 Location
             </th>
-            <th>
+            <th width="140">
                 Instructor
             </th>
+            <th>
+                Edit?
+            </th>
+
         </tr>
         @foreach (var item in Model)
         {
@@ -52,6 +56,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Instructor)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit","Edit", new { id = item.SeminarID, searched = true, searchString = ViewBag.CurrentSearch})
                 </td>
 
             </tr>

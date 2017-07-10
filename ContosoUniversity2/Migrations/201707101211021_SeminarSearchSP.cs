@@ -14,7 +14,8 @@ namespace ContosoUniversity2.Migrations
             BEGIN
                 SET NOCOUNT ON;
 
-            SELECT FORMAT (dbo.Seminar.SeminarTime, 'dd/MM/yyyy HH:mm', 'en-gb') AS ""DateAndTime"", 
+            SELECT dbo.Seminar.SeminarID, 
+            FORMAT (dbo.Seminar.SeminarTime, 'dd/MM/yyyy HH:mm', 'en-gb') AS ""DateAndTime"", 
             dbo.Course.Title,
 
             STUFF((SELECT '; ' + dbo.Student.FirstName + ' ' + dbo.Student.LastName

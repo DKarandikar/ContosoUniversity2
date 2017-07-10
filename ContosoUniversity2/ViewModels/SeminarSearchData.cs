@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Web;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,5 +18,6 @@ namespace ContosoUniversity2.ViewModels
         public string FullNames { get; set; }
         public string Location { get; set; }
         public string Instructor { get; set; }
+        public int SeminarID { get; set; }
     }
 }

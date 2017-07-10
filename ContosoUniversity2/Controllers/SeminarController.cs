@@ -184,7 +184,7 @@ namespace ContosoUniversity2.Controllers
         }
 
         // GET: Seminar/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int? id, Boolean searched = false, string searchString = "")
         {
             if (id == null)
             {
@@ -195,6 +195,8 @@ namespace ContosoUniversity2.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.Searched = searched;
+            ViewBag.SearchString = searchString;
             PopulateInstructorsDropDownList(seminar, seminar.InstructorID);
             return View(seminar);
         }
@@ -202,7 +204,7 @@ namespace ContosoUniversity2.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int? id)
+        public ActionResult EditPost(int? id, Boolean? searched = false, string searchString = "")
         {
             if (id == null)
             {
@@ -316,6 +318,13 @@ namespace ContosoUniversity2.Controllers
                         }
 
                         db.SaveChanges();
+
+                        if (searched == true)
+                        {
+                            return RedirectToAction("Search", new { searchString = searchString });
+                        }
+
+                       
                         return RedirectToAction("Index");
                     }
 

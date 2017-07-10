@@ -78,6 +78,9 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
+                @Html.Hidden("Searched", ViewBag.Searched as Boolean?)
+                @Html.Hidden("SearchString", ViewBag.SearchString as string)
+                <input type="hidden" value="@ViewBag.SearchString" name="SearchString" />
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </div>
