@@ -107,8 +107,8 @@ namespace ContosoUniversity2.Controllers
                             }
                         }
                     }
-                    
                 }
+
                 // Check for overlap with other seminars in this location
                 Boolean overlapLocation = false;
 
