@@ -257,7 +257,7 @@ namespace ContosoUniversity2.Migrations
                     var studentsForSeminar = new List<Student>();
                     foreach (Student student in context.Students)
                     {
-                        foreach (Enrollment enrollment in student.Enrollments)
+                        foreach (Enrollment enrollment in context.Enrollments.Where(e => e.StudentID == student.ID))
                         {
                             if (enrollment.CourseID == s.CourseID)
                             {
